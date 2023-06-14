@@ -3,12 +3,89 @@ import { createContext, useContext, useReducer } from "react";
 const myContext=createContext();
 const initial={
     input:"0",
-    output:0
+    output:"0",
+    val1:'',
+    val2:'',
+    type:'',
+    case:false,
+    point:false,
+    point2:false,
+    op:false
+}
+const calculate=(val1,val2,type)=>{
+if(val1.length===0 || val2.length===0 || type.length===0)return "ERROR"
+val1=Number(val1);
+val2=Number(val2);
+if(type==='-')return val1-val2;
+if(type==='/')return val1/val2;
+if(type==='+')return val1+val2;
+if(type==='*')return val1*val2;
+if(type==='%')return val1%val2;
 }
 const reducer=(state,action)=>{
+    
+    if(((action>='0' && action<='9' )|| (action==='.' && !state.point))  && !state.case){
+        console.log(action)
     return {
         ...state,
-       input: action
+        input:state.val1+action,
+        val1:state.val1+action,
+        output:state.val1+action,
+        point:(action==='.')?true:false
+    }}
+    else if(( (action>='0' && action<='9' )|| (action==='.' && !state.point2) )  && state.case){
+        let t=state.type
+        for(let i=state.input.length-1;i>=0;i--) if( (!(i>='0' && i<='9')) && i!=='.'){t=i;break;}
+        
+        return {
+        ...state,
+        input:state.input+action,
+        val2:state.val2+action,
+        output:state.val2+action,
+        point2:(action==='.')?true:false,
+        val1:state.op?state.output:state.val1,
+        type:t
+    }
+    }
+    else if((action==='*' || action==='-' || action==='/' || action==='+' || action ==='%') && state.val1.length===0 )
+    return {
+        ...state,
+        output:"ERROR"
+    }
+    else if((action==='*' || action==='-' || action==='/' || action==='+' || action ==='%') && state.val2.length===0 )
+    return {
+        ...state,
+        type:action,
+        input:state.val1+action,
+        case:true
+    }
+    else if((action==='*' || action==='-' || action==='/' || action==='+' || action ==='%') && state.val2.length!==0){
+    const ans=calculate(state.val1,state.val2,state.type)
+    return {
+        ...state,
+        output:ans,
+        input:state.val1+state.type+state.val2+action,
+        val2:'',
+        op:true
+    }
+    }
+else if(action==="ENTER"){
+    const ans=calculate(state.val1,state.val2,state.type)
+    return {
+          input:'',
+    output:ans,
+    val1:'',
+    val2:'',
+    type:'',
+    case:false,
+    point:false,
+    point2:false,
+    op:false
+    }
+    }
+    else if(action==='clear')
+    return {
+     ...initial   
     }
 }
 const Provider=({children})=>{
