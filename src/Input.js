@@ -6,7 +6,7 @@ const Input = () => {
   return (
     <div className='input'>
         {
-            val.map((ele)=><button onClick={()=>getValue(ele)}  type={ele==='ENTER'?'submit':'button'}>{ele}</button>)
+            val.map((ele,id)=><button onClick={()=>getValue(ele)} key={id} type={ele==='ENTER'?'submit':'button'}>{ele}</button>)
         }
     </div>
   )

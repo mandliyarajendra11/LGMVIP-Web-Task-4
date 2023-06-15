@@ -5,7 +5,7 @@ const Output = () => {
   const {input ,output}=Consumer()
   return (
     <div className='output'>
-        <p>{input}</p>
+       <p>{input}</p>
         <h1>{output}</h1>
     </div>
   )

@@ -10,7 +10,7 @@ const initial={
     case:false,
     point:false,
     point2:false,
-    op:false
+    op:false,
 }
 const calculate=(val1,val2,type)=>{
 if(val1.length===0 || val2.length===0 || type.length===0)return "ERROR"
@@ -25,7 +25,6 @@ if(type==='%')return val1%val2;
 const reducer=(state,action)=>{
     
     if(((action>='0' && action<='9' )|| (action==='.' && !state.point))  && !state.case){
-        console.log(action)
     return {
         ...state,
         input:state.val1+action,
@@ -33,6 +32,28 @@ const reducer=(state,action)=>{
         output:state.val1+action,
         point:(action==='.')?true:false
     }}
+    else if(action==='-'  && !state.case && state.val1.length===0){
+        return {
+            ...state,
+            input:state.val1+action,
+            val1:state.val1+action,
+            output:state.val1+action,
+            point:(action==='.')?true:false
+        }}
+    else if( action==='-'  && state.case && state.val2.length===0){
+        let t=state.type
+        for(let i=state.input.length-1;i>=0;i--) if( (!(i>='0' && i<='9')) && i!=='.'){t=i;break;}
+        
+        return {
+        ...state,
+        input:state.input+action,
+        val2:state.val2+action,
+        output:state.val2+action,
+        point2:(action==='.')?true:false,
+        val1:state.op?state.output:state.val1,
+        type:t
+    }
+    }
     else if(( (action>='0' && action<='9' )|| (action==='.' && !state.point2) )  && state.case){
         let t=state.type
         for(let i=state.input.length-1;i>=0;i--) if( (!(i>='0' && i<='9')) && i!=='.'){t=i;break;}
@@ -47,7 +68,7 @@ const reducer=(state,action)=>{
         type:t
     }
     }
-    else if((action==='*' || action==='-' || action==='/' || action==='+' || action ==='%') && state.val1.length===0 )
+    else if((action==='*' || action==='/' || action==='+' || action ==='%') && state.val1.length===0 )
     return {
         ...state,
         output:"ERROR"
@@ -69,6 +90,33 @@ const reducer=(state,action)=>{
         op:true
     }
     }
+    else if(action==='-+' && !state.case ){
+        let val=Number(state.val1);
+        if(val>=0)
+        val=(-val).toString();
+        else 
+        val=Math.abs(val).toString();
+        return {
+            ...state,
+            val1:val,
+            input:val,
+            output:val
+        }
+    }
+    else if(action==='-+' && state.case ){
+        let val=Number( state.val2);
+        if(val>=0)
+        val=(-val).toString();
+        else 
+        val=Math.abs(val).toString();
+      
+        return {
+            ...state,
+            val2:val,
+            input:state.val1+state.type+val,
+            output:val
+        }
+    }
 else if(action==="ENTER"){
     const ans=calculate(state.val1,state.val2,state.type)
     return {
@@ -80,9 +128,11 @@ else if(action==="ENTER"){
     case:false,
     point:false,
     point2:false,
-    op:false
+    op:false,
+    last:{...state,output:ans}
     }
     }
+    
     else if(action==='clear')
     return {
      ...initial   
